@@ -16,7 +16,6 @@ const currentDateTxt = document.querySelector('.current-date-txt')
 const sunriseTxt = document.querySelector('.sunrise-txt')
 const sunsetTxt = document.querySelector('.sunset-txt')
 
-
 const forecastItemsContainer = document.querySelector('.forecast-items-container')
 
 // API KEY
@@ -38,6 +37,71 @@ cityInput.addEventListener('keydown', (event) => {
     }
 })
 
+// TOAST NOTIFICATIONS 
+function createToastContainer() {
+    let container = document.getElementById('toast-container')
+    if (!container) {
+        container = document.createElement('div')
+        container.id = 'toast-container'
+        Object.assign(container.style, {
+            position: 'fixed',
+            top: '20px',
+            right: '20px',
+            zIndex: 10000,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '10px',
+            maxWidth: '300px',
+        })
+        document.body.appendChild(container)
+    }
+    return container
+}
+// SHOW TOAST 
+function showToast(message, type = 'info') {
+    const container = createToastContainer()
+
+    const toast = document.createElement('div')
+    toast.textContent = message
+    Object.assign(toast.style, {
+        minWidth: '200px',
+        padding: '12px 20px',
+        color: '#fff',
+        borderRadius: '4px',
+        boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
+        opacity: '0.9',
+        fontFamily: 'sans-serif',
+        cursor: 'pointer',
+        transition: 'opacity 0.5s ease',
+        userSelect: 'none',
+    })
+
+    if (type === 'error') {
+        toast.style.backgroundColor = '#e74c3c'
+    } else if (type === 'success') {
+        toast.style.backgroundColor = '#2ecc71'
+    } else {
+        toast.style.backgroundColor = '#3498db'
+    }
+    // CLICK CLOSE
+    toast.addEventListener('click', () => {
+        toast.style.opacity = '0'
+        setTimeout(() => container.removeChild(toast), 500)
+    })
+
+    container.appendChild(toast)
+
+    // AUTOMATIC CLOSE AFTER 3 SECONDS
+    setTimeout(() => {
+        toast.style.opacity = '0'
+        setTimeout(() => {
+            if (toast.parentElement) {
+                container.removeChild(toast)
+            }
+        }, 500)
+    }, 3000)
+}
+
 // FETCH DATA
 async function getFetchData(endPoint, city) {
     const apiUrl = `https://api.openweathermap.org/data/2.5/${endPoint}?q=${city}&appid=${apiKey}&units=metric`
@@ -54,7 +118,6 @@ function getWeatherIcon(id) {
     if (id <= 781) return 'atmosphere.svg'
     if (id === 800) return 'clear.svg'
     if (id >= 801 && id <= 804) return 'clouds.svg'
-
 }
 
 // SUNRISE/SUNSET TIME
@@ -65,7 +128,6 @@ function getTimeSun(unix, timezoneOffset) {
         minute: '2-digit'
     })
 }
-
 
 // CURRENT DATE
 function getCurrentDate() {
@@ -80,34 +142,49 @@ function getCurrentDate() {
 
 // UPDATE WEATHER INFO
 async function updateWeatherInfo(city) {
-    const weatherData = await getFetchData('weather', city)
-    if (weatherData.cod != 200) {
-        showDisplaySection(notFoundSection)
-        return
+    try {
+        const weatherData = await getFetchData('weather', city)
+
+        if (weatherData.cod != 200) {
+            showDisplaySection(notFoundSection)
+            return
+        }
+
+        const {
+            name: country,
+            main: { temp, humidity, feels_like },
+            weather: [{ id, main }],
+            wind: { speed },
+            sys: { sunrise, sunset },
+            timezone
+        } = weatherData
+
+        countryTxt.textContent = country
+        tempTxt.textContent = Math.round(temp) + '°C'
+        feelsLikeTxt.textContent = `Feels like: ${Math.round(feels_like)}°C`
+        conditionTxt.textContent = main
+        humidityValueTxt.textContent = humidity + '%'
+        windValueTxt.textContent = speed + ' M/s'
+
+        sunriseTxt.textContent = `Sunrise: ${getTimeSun(sunrise, timezone)}`
+        sunsetTxt.textContent = `Sunset: ${getTimeSun(sunset, timezone)}`
+
+        currentDateTxt.textContent = getCurrentDate()
+        weatherSummaryImg.src = `assets/weather/${getWeatherIcon(id)}`
+
+        await updateForecastsInfo(city)
+
+        showDisplaySection(weatherInfoSection)
+
+    } catch (error) {
+        if (error instanceof TypeError) {
+            showToast('Error: No internet connection. Please check your connection and try again.', 'error')
+        } else {
+            showToast('An error occurred while fetching the weather data.', 'error')
+        }
+
+        showDisplaySection(searchCitySection)
     }
-    const {
-        name: country,
-        main: { temp, humidity, feels_like },
-        weather: [{ id, main }],
-        wind: { speed },
-        sys: { sunrise, sunset },
-        timezone
-    } = weatherData
-    countryTxt.textContent = country
-    tempTxt.textContent = Math.round(temp) + '°C'
-    feelsLikeTxt.textContent = `Feels like: ${Math.round(feels_like)}°C`
-    conditionTxt.textContent = main
-    humidityValueTxt.textContent = humidity + '%'
-    windValueTxt.textContent = speed + ' M/s'
-
-    sunriseTxt.textContent = `Sunrise: ${getTimeSun(sunrise, timezone)}`
-    sunsetTxt.textContent = `Sunset: ${getTimeSun(sunset, timezone)}`
-
-
-    currentDateTxt.textContent = getCurrentDate()
-    weatherSummaryImg.src = `assets/weather/${getWeatherIcon(id)}`
-    await updateForecastsInfo(city)
-    showDisplaySection(weatherInfoSection)
 }
 
 // UPDATE FORECAST
