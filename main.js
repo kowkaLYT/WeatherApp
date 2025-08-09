@@ -12,7 +12,7 @@ const conditionTxt = document.querySelector('.condition-txt')
 const humidityValueTxt = document.querySelector('.humidity-value-txt')
 const windValueTxt = document.querySelector('.wind-value-txt')
 const weatherSummaryImg = document.querySelector('.weather-summary-img')
-const currentDateTxt = document.querySelector('.current-date-txt')
+const currentLocalTime = document.querySelector('.current-date-txt')
 const sunriseTxt = document.querySelector('.sunrise-txt')
 const sunsetTxt = document.querySelector('.sunset-txt')
 
@@ -23,14 +23,14 @@ const apiKey = 'd7729a8df9660f0d1023e8339e7403a9'
 
 // SEARCH
 searchBtn.addEventListener('click', () => {
-    if (cityInput.value.trim() != '') {
+    if (cityInput.value.trim() !== '') {
         updateWeatherInfo(cityInput.value)
         cityInput.value = ''
         cityInput.blur()
     }
 })
 cityInput.addEventListener('keydown', (event) => {
-    if (event.key == 'Enter' && cityInput.value.trim()) {
+    if (event.key === 'Enter' && cityInput.value.trim()) {
         updateWeatherInfo(cityInput.value)
         cityInput.value = ''
         cityInput.blur()
@@ -57,7 +57,8 @@ function createToastContainer() {
     }
     return container
 }
-// SHOW TOAST 
+
+// SHOW TOAST
 function showToast(message, type = 'info') {
     const container = createToastContainer()
 
@@ -83,6 +84,7 @@ function showToast(message, type = 'info') {
     } else {
         toast.style.backgroundColor = '#3498db'
     }
+
     // CLICK CLOSE
     toast.addEventListener('click', () => {
         toast.style.opacity = '0'
@@ -140,6 +142,16 @@ function getCurrentDate() {
     return currentDate.toLocaleDateString('en-GB', options)
 }
 
+// CURRENT TIME (LOCAL TIME)
+function getLocalTime(timezoneOffset) {
+    const utc = Date.now() + (new Date().getTimezoneOffset() * 60000);
+    const localDate = new Date(utc + timezoneOffset * 1000);
+    return localDate.toLocaleTimeString('en-GB', {
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+
 // UPDATE WEATHER INFO
 async function updateWeatherInfo(city) {
     try {
@@ -169,7 +181,7 @@ async function updateWeatherInfo(city) {
         sunriseTxt.textContent = `Sunrise: ${getTimeSun(sunrise, timezone)}`
         sunsetTxt.textContent = `Sunset: ${getTimeSun(sunset, timezone)}`
 
-        currentDateTxt.textContent = getCurrentDate()
+        currentLocalTime.textContent = `${getCurrentDate()} ${getLocalTime(timezone)}`
         weatherSummaryImg.src = `assets/weather/${getWeatherIcon(id)}`
 
         await updateForecastsInfo(city)
