@@ -18,6 +18,10 @@ const sunsetTxt = document.querySelector('.sunset-txt')
 
 const forecastItemsContainer = document.querySelector('.forecast-items-container')
 
+const weatherTipText = document.querySelector('.tip-text')
+const tipIcon = document.querySelector('.tip-icon')
+const tipContainer = document.querySelector('.weather-tips')
+
 // API KEY
 const apiKey = 'd7729a8df9660f0d1023e8339e7403a9'
 
@@ -181,6 +185,10 @@ async function updateWeatherInfo(city) {
         sunriseTxt.textContent = `Sunrise: ${getTimeSun(sunrise, timezone)}`
         sunsetTxt.textContent = `Sunset: ${getTimeSun(sunset, timezone)}`
 
+        weatherTipText.textContent = getWeatherTip(main);
+        tipIcon.src = `assets/weather/${getWeatherIcon(id)}`;
+        tipContainer.style.display = 'flex';
+        
         currentLocalTime.textContent = `${getCurrentDate()} ${getLocalTime(timezone)}`
         weatherSummaryImg.src = `assets/weather/${getWeatherIcon(id)}`
 
@@ -234,6 +242,21 @@ function UpdateForecastItems(weatherData) {
     `
     forecastItemsContainer.insertAdjacentHTML('beforeend', forecastItem)
 }
+
+// WEATHER TIPS
+function getWeatherTip(condition) {
+    const tips = {
+        Clear: "Great weather for a walk! Don't forget your sunglasses.",
+        Clouds: "It might be cool — take a light jacket.",
+        Rain: "Take an umbrella with you.",
+        Snow: "Dress warmly, it’s slippery outside.",
+        Thunderstorm: "Better to stay indoors.",
+        Drizzle: "Light rain, but an umbrella will come in handy.",
+        Atmosphere: "Visibility is poor — be careful."
+    };
+    return tips[condition] || "Have a nice day!";
+}
+
 
 // DISPLAY SECTIONS
 function showDisplaySection(section) {

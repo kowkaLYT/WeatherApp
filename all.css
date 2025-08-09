@@ -34,7 +34,7 @@ body::before {
 /* ----- MAIN CONTAINER ----- */
 .main-container {
   width: 400px;
-  height: 620px;
+  height: 770px;
   z-index: 1;
   background: linear-gradient(
     145deg,
@@ -237,9 +237,50 @@ body::before {
   align-items: center;
   text-align: center;
   gap: 15px;
-  margin-top: 25%;
+  position: absolute;
+  top: 33%;
+  right: 12%;
 }
 .section-message img {
   height: 180px;
   width: fit-content;
+}
+/* ---- WEATHER TIPS ----- */
+.weather-tips {
+  margin-top: 20px;
+  padding: 15px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 15px;
+  font-size: 0.9rem;
+  animation: fadeIn 0.5s ease-in-out;
+}
+.weather-tips h4 {
+  font-size: 18px;
+  line-height: 1.2;
+}
+.tip-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.tip-text {
+  font-weight: 400;
+  color: #a9eec8;
+}
+.tip-container img {
+  width: 32px;
+  height: 32px;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
