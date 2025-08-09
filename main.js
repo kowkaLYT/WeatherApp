@@ -1,47 +1,64 @@
-const cityInput = document.querySelector('.city-input')
-const searchBtn = document.querySelector('.input-btn')
+// DOM ELEMENTS
+const elements = {
+    cityInput: document.querySelector('.city-input'),
+    searchBtn: document.querySelector('.input-btn'),
 
-const weatherInfoSection = document.querySelector('.weather-info')
-const searchCitySection = document.querySelector('.search-city')
-const notFoundSection = document.querySelector('.not-found')
+    weatherInfoSection: document.querySelector('.weather-info'),
+    searchCitySection: document.querySelector('.search-city'),
+    notFoundSection: document.querySelector('.not-found'),
 
-const countryTxt = document.querySelector('.country-txt')
-const tempTxt = document.querySelector('.temp-txt')
-const feelsLikeTxt = document.querySelector('.feels-like-txt')
-const conditionTxt = document.querySelector('.condition-txt')
-const humidityValueTxt = document.querySelector('.humidity-value-txt')
-const windValueTxt = document.querySelector('.wind-value-txt')
-const weatherSummaryImg = document.querySelector('.weather-summary-img')
-const currentLocalTime = document.querySelector('.current-date-txt')
-const sunriseTxt = document.querySelector('.sunrise-txt')
-const sunsetTxt = document.querySelector('.sunset-txt')
+    countryTxt: document.querySelector('.country-txt'),
+    tempTxt: document.querySelector('.temp-txt'),
+    feelsLikeTxt: document.querySelector('.feels-like-txt'),
+    conditionTxt: document.querySelector('.condition-txt'),
+    humidityValueTxt: document.querySelector('.humidity-value-txt'),
+    windValueTxt: document.querySelector('.wind-value-txt'),
+    weatherSummaryImg: document.querySelector('.weather-summary-img'),
+    currentLocalTime: document.querySelector('.current-date-txt'),
+    sunriseTxt: document.querySelector('.sunrise-txt'),
+    sunsetTxt: document.querySelector('.sunset-txt'),
 
-const forecastItemsContainer = document.querySelector('.forecast-items-container')
+    forecastItemsContainer: document.querySelector('.forecast-items-container'),
 
-const weatherTipText = document.querySelector('.tip-text')
-const tipIcon = document.querySelector('.tip-icon')
-const tipContainer = document.querySelector('.weather-tips')
+    weatherTipText: document.querySelector('.tip-text'),
+    tipIcon: document.querySelector('.tip-icon'),
+    tipContainer: document.querySelector('.weather-tips'),
 
-// API KEY
-const apiKey = 'd7729a8df9660f0d1023e8339e7403a9'
+    pinButton: document.querySelector('.header-pin'),
+};
 
-// SEARCH
-searchBtn.addEventListener('click', () => {
-    if (cityInput.value.trim() !== '') {
-        updateWeatherInfo(cityInput.value)
-        cityInput.value = ''
-        cityInput.blur()
+// CONSTS
+const apiKey = 'd7729a8df9660f0d1023e8339e7403a9';
+const FORECAST_TIME = '12:00:00';
+const LOCALE_DATE = 'en-GB';
+const LOCALE_FORECAST = 'en-US';
+
+// EVENTS HANDLERS
+if (elements.pinButton) {
+    elements.pinButton.addEventListener('click', useCurrentLocation)
+}
+
+elements.searchBtn.addEventListener('click', () => {
+    const city = elements.cityInput.value.trim()
+    if (city) {
+        updateWeatherInfo(city)
+        elements.cityInput.value = ''
+        elements.cityInput.blur()
     }
 })
-cityInput.addEventListener('keydown', (event) => {
-    if (event.key === 'Enter' && cityInput.value.trim()) {
-        updateWeatherInfo(cityInput.value)
-        cityInput.value = ''
-        cityInput.blur()
+
+elements.cityInput.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+        const city = elements.cityInput.value.trim()
+        if (city) {
+            updateWeatherInfo(city)
+            elements.cityInput.value = ''
+            elements.cityInput.blur()
+        }
     }
 })
 
-// TOAST NOTIFICATIONS 
+// TOAST NOTIFICATIONS
 function createToastContainer() {
     let container = document.getElementById('toast-container')
     if (!container) {
@@ -101,19 +118,32 @@ function showToast(message, type = 'info') {
     setTimeout(() => {
         toast.style.opacity = '0'
         setTimeout(() => {
-            if (toast.parentElement) {
-                container.removeChild(toast)
-            }
+            if (toast.parentElement) container.removeChild(toast)
         }, 500)
     }, 3000)
 }
 
 // FETCH DATA
 async function getFetchData(endPoint, city) {
-    const apiUrl = `https://api.openweathermap.org/data/2.5/${endPoint}?q=${city}&appid=${apiKey}&units=metric`
-    const response = await fetch(apiUrl)
-    return response.json()
+    const apiUrl = `https://api.openweathermap.org/data/2.5/${endPoint}?q=${city}&appid=${apiKey}&units=metric`;
+    const response = await fetch(apiUrl);
+    const data = await response.json();
+    if (!response.ok) {
+        throw new Error(data.message || `HTTP error! Status: ${response.status}`);
+    }
+    return data;
 }
+
+async function getFetchDataByCoords(endPoint, lat, lon) {
+    const apiUrl = `https://api.openweathermap.org/data/2.5/${endPoint}?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric`;
+    const response = await fetch(apiUrl);
+    const data = await response.json();
+    if (!response.ok) {
+        throw new Error(data.message || `HTTP error! Status: ${response.status}`);
+    }
+    return data;
+}
+
 
 // WEATHER ICON
 function getWeatherIcon(id) {
@@ -129,118 +159,21 @@ function getWeatherIcon(id) {
 // SUNRISE/SUNSET TIME
 function getTimeSun(unix, timezoneOffset) {
     const date = new Date((unix + timezoneOffset) * 1000)
-    return date.toLocaleTimeString('en-GB', {
-        hour: '2-digit',
-        minute: '2-digit'
-    })
+    return date.toLocaleTimeString(LOCALE_DATE, { hour: '2-digit', minute: '2-digit' })
 }
 
 // CURRENT DATE
 function getCurrentDate() {
     const currentDate = new Date()
-    const options = {
-        weekday: 'short',
-        day: '2-digit',
-        month: 'short'
-    }
-    return currentDate.toLocaleDateString('en-GB', options)
+    const options = { weekday: 'short', day: '2-digit', month: 'short' }
+    return currentDate.toLocaleDateString(LOCALE_DATE, options)
 }
 
 // CURRENT TIME (LOCAL TIME)
 function getLocalTime(timezoneOffset) {
-    const utc = Date.now() + (new Date().getTimezoneOffset() * 60000);
+    const utc = Date.now() + new Date().getTimezoneOffset() * 60000
     const localDate = new Date(utc + timezoneOffset * 1000);
-    return localDate.toLocaleTimeString('en-GB', {
-        hour: '2-digit',
-        minute: '2-digit'
-    });
-}
-
-// UPDATE WEATHER INFO
-async function updateWeatherInfo(city) {
-    try {
-        const weatherData = await getFetchData('weather', city)
-
-        if (weatherData.cod != 200) {
-            showDisplaySection(notFoundSection)
-            return
-        }
-
-        const {
-            name: country,
-            main: { temp, humidity, feels_like },
-            weather: [{ id, main }],
-            wind: { speed },
-            sys: { sunrise, sunset },
-            timezone
-        } = weatherData
-
-        countryTxt.textContent = country
-        tempTxt.textContent = Math.round(temp) + '°C'
-        feelsLikeTxt.textContent = `Feels like: ${Math.round(feels_like)}°C`
-        conditionTxt.textContent = main
-        humidityValueTxt.textContent = humidity + '%'
-        windValueTxt.textContent = speed + ' M/s'
-
-        sunriseTxt.textContent = `Sunrise: ${getTimeSun(sunrise, timezone)}`
-        sunsetTxt.textContent = `Sunset: ${getTimeSun(sunset, timezone)}`
-
-        weatherTipText.textContent = getWeatherTip(main);
-        tipIcon.src = `assets/weather/${getWeatherIcon(id)}`;
-        tipContainer.style.display = 'flex';
-
-        currentLocalTime.textContent = `${getCurrentDate()} ${getLocalTime(timezone)}`
-        weatherSummaryImg.src = `assets/weather/${getWeatherIcon(id)}`
-
-        await updateForecastsInfo(city)
-
-        showDisplaySection(weatherInfoSection)
-
-    } catch (error) {
-        if (error instanceof TypeError) {
-            showToast('Error: No internet connection. Please check your connection and try again.', 'error')
-        } else {
-            showToast('An error occurred while fetching the weather data.', 'error')
-        }
-
-        showDisplaySection(searchCitySection)
-    }
-}
-
-// UPDATE FORECAST
-async function updateForecastsInfo(city) {
-    const forecastsData = await getFetchData('forecast', city)
-    const timeTaken = '12:00:00'
-    const todayDate = new Date().toISOString().split('T')[0]
-    forecastItemsContainer.innerHTML = ''
-    forecastsData.list.forEach(forecastWeather => {
-        if (forecastWeather.dt_txt.includes(timeTaken) && !forecastWeather.dt_txt.includes(todayDate)) {
-            UpdateForecastItems(forecastWeather)
-        }
-    })
-}
-
-// UPDATE FORECAST FOR NEXT DAYS
-function UpdateForecastItems(weatherData) {
-    const {
-        dt_txt: date,
-        weather: [{ id }],
-        main: { temp }
-    } = weatherData
-    const dateTaken = new Date(date)
-    const dateOption = {
-        day: '2-digit',
-        month: 'short'
-    }
-    const dateResult = dateTaken.toLocaleDateString('en-US', dateOption)
-    const forecastItem = `
-     <div class="forecast-item">
-         <h5 class="forecast-item-date regular-txt">${dateResult}</h5>
-        <img src="assets/weather/${getWeatherIcon(id)}" alt="Forecast" class="forecast-item-img">
-        <h5 class="forecast-item-temp">${Math.round(temp)} °C</h5>
-        </div>
-    `
-    forecastItemsContainer.insertAdjacentHTML('beforeend', forecastItem)
+    return localDate.toLocaleTimeString(LOCALE_DATE, { hour: '2-digit', minute: '2-digit' })
 }
 
 // WEATHER TIPS
@@ -257,28 +190,174 @@ function getWeatherTip(condition) {
     return tips[condition] || "Have a nice day!";
 }
 
+// RENDER WEATHER
+function renderWeatherData(weatherData) {
+    const {
+        name: cityName,
+        sys: { country },
+        main: { temp, humidity, feels_like },
+        weather: [{ id, main }],
+        wind: { speed },
+        sys: { sunrise, sunset },
+        timezone
+    } = weatherData;
 
-// DISPLAY SECTIONS
-function showDisplaySection(sectionToShow) {
-    const sections = [weatherInfoSection, searchCitySection, notFoundSection];
-    sections.forEach(section => {
-        if (section === sectionToShow) {
-            section.style.display = 'flex';
-            const children = Array.from(section.children);
-            children.forEach((child, index) => {
-                child.style.opacity = '0';
-                child.style.transform = 'translateY(-20px)';
-                child.style.animation = `fadeSlideDown 0.5s ease forwards`;
-                child.style.animationDelay = `${index * 0.15}s`;
-            });
-        } else {
-            section.style.display = 'none';
-            Array.from(section.children).forEach(child => {
-                child.style.animation = '';
-                child.style.opacity = '';
-                child.style.transform = '';
-                child.style.animationDelay = '';
-            });
+    elements.countryTxt.textContent = `${cityName}, ${country}`;
+    elements.tempTxt.textContent = Math.round(temp) + '°C';
+    elements.feelsLikeTxt.textContent = `Feels like: ${Math.round(feels_like)}°C`;
+    elements.conditionTxt.textContent = main;
+    elements.humidityValueTxt.textContent = humidity + '%';
+    elements.windValueTxt.textContent = speed + ' M/s';
+
+    elements.sunriseTxt.textContent = `Sunrise: ${getTimeSun(sunrise, timezone)}`;
+    elements.sunsetTxt.textContent = `Sunset: ${getTimeSun(sunset, timezone)}`;
+
+    elements.weatherTipText.textContent = getWeatherTip(main);
+    elements.tipIcon.src = `assets/weather/${getWeatherIcon(id)}`;
+    elements.tipContainer.style.display = 'flex';
+
+    elements.currentLocalTime.textContent = `${getCurrentDate()} ${getLocalTime(timezone)}`;
+    elements.weatherSummaryImg.src = `assets/weather/${getWeatherIcon(id)}`;
+}
+
+// UPDATE WEATHER BY CITY NAME
+async function updateWeatherInfo(city) {
+    try {
+        const weatherData = await getFetchData('weather', city);
+        renderWeatherData(weatherData);
+        await updateForecastsInfo(city);
+        showDisplaySection(elements.weatherInfoSection);
+    } catch (error) {
+        handleError(error);
+    }
+}
+
+// UPDATE WEATHER BY COORDINATES
+async function updateWeatherInfoByCoords(lat, lon) {
+    try {
+        const weatherData = await getFetchDataByCoords('weather', lat, lon);
+        renderWeatherData(weatherData);
+        await updateForecastsInfoByCoords(lat, lon);
+        showDisplaySection(elements.weatherInfoSection);
+    } catch (error) {
+        handleError(error);
+    }
+}
+
+// ERRORS
+function handleError(error) {
+    if (error.message === 'city not found') {
+        showToast('City not found. Please check the city name.', 'error');
+        showDisplaySection(elements.notFoundSection);
+    } else if (error instanceof TypeError) {
+        showToast('Error: No internet connection. Please check your connection and try again.', 'error');
+        showDisplaySection(elements.searchCitySection);
+    } else {
+        showToast('An error occurred while fetching the weather data.', 'error');
+        showDisplaySection(elements.searchCitySection);
+    }
+}
+
+
+// =UPDATE FORECAST BY CITY NAME
+async function updateForecastsInfo(city) {
+    try {
+        const forecastsData = await getFetchData('forecast', city);
+        renderForecasts(forecastsData);
+    } catch {
+    }
+}
+
+// UPDATE FORECAST BY COORDINATES
+async function updateForecastsInfoByCoords(lat, lon) {
+    try {
+        const forecastsData = await getFetchDataByCoords('forecast', lat, lon);
+        renderForecasts(forecastsData);
+    } catch {
+    }
+}
+
+// RENDER FORECAST
+function renderForecasts(forecastsData) {
+    const todayDate = new Date().toISOString().split('T')[0];
+    elements.forecastItemsContainer.innerHTML = '';
+
+    forecastsData.list.forEach(forecastWeather => {
+        if (forecastWeather.dt_txt.includes(FORECAST_TIME) && !forecastWeather.dt_txt.includes(todayDate)) {
+            updateForecastItem(forecastWeather);
         }
     });
 }
+
+//RENDER FORECAST ITEM
+function updateForecastItem(weatherData) {
+    const {
+        dt_txt: date,
+        weather: [{ id }],
+        main: { temp }
+    } = weatherData;
+
+    const dateTaken = new Date(date);
+    const dateOption = { day: '2-digit', month: 'short' };
+    const dateResult = dateTaken.toLocaleDateString(LOCALE_FORECAST, dateOption);
+
+    const forecastItem = `
+        <div class="forecast-item">
+            <h5 class="forecast-item-date regular-txt">${dateResult}</h5>
+            <img src="assets/weather/${getWeatherIcon(id)}" alt="Forecast" class="forecast-item-img">
+            <h5 class="forecast-item-temp">${Math.round(temp)} °C</h5>
+        </div>
+    `;
+    elements.forecastItemsContainer.insertAdjacentHTML('beforeend', forecastItem);
+}
+
+// SHOE DISPLAY SECTION
+function showDisplaySection(sectionToShow) {
+    const sections = [elements.weatherInfoSection, elements.searchCitySection, elements.notFoundSection];
+    sections.forEach(section => {
+        if (section === sectionToShow) {
+            section.style.display = 'flex';
+            Array.from(section.children).forEach((child, index) => {
+                child.style.opacity = '0';
+                child.style.transform = 'translateY(30px)';
+                child.style.animation = `fadeInUp 0.5s ease forwards`;
+                child.style.animationDelay = `${index * 0.1}s`;
+            });
+        } else {
+            section.style.display = 'none';
+        }
+    });
+}
+
+// USER LOCATION
+function useCurrentLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            position => {
+                const { latitude, longitude } = position.coords;
+                updateWeatherInfoByCoords(latitude, longitude);
+            },
+            () => {
+                showToast('Unable to retrieve your location.', 'error');
+            }
+        );
+    } else {
+        showToast('Geolocation is not supported by this browser.', 'error');
+    }
+}
+
+// STYLES
+const styleSheet = document.createElement("style");
+styleSheet.innerText = `
+@keyframes fadeInUp {
+    0% {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+`;
+document.head.appendChild(styleSheet);

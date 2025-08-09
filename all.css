@@ -46,13 +46,20 @@ body::before {
   backdrop-filter: blur(100px);
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
   padding: 20px;
-  overflow: hidden;
+  overflow: visible;
 }
 
 /* ----- HEADER INPUT ----- */
+.header-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 25px;
+}
 .input-container {
   position: relative;
-  margin-bottom: 25px;
+  width: 100%;
 }
 .city-input {
   width: 100%;
@@ -90,6 +97,48 @@ body::before {
 }
 .input-btn:hover span {
   opacity: 1;
+}
+.pin-container {
+  border-radius: 99px;
+  border: 2px solid transparent;
+  background: rgba(0, 0, 0, 0.15);
+  padding: 10px 10px 5px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+.pin-container {
+  position: relative;
+  display: inline-block;
+}
+
+.pin-container:hover {
+  border: 2px solid rgba(255, 255, 255, 0.226);
+}
+
+.header-pin {
+  width: 24px;
+  height: 24px;
+  display: block;
+}
+
+.pin-container:hover::after {
+  content: "Use my location";
+  position: absolute;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #5b719b;
+  padding: 4px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+  line-height: 1.5;
+  color: white;
+  font-size: 12px;
+  font-weight: 300;
+  opacity: 0.9;
+  pointer-events: none;
+  z-index: 10;
 }
 
 /* ----- TEXT CLASSES ----- */
