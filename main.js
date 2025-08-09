@@ -188,7 +188,7 @@ async function updateWeatherInfo(city) {
         weatherTipText.textContent = getWeatherTip(main);
         tipIcon.src = `assets/weather/${getWeatherIcon(id)}`;
         tipContainer.style.display = 'flex';
-        
+
         currentLocalTime.textContent = `${getCurrentDate()} ${getLocalTime(timezone)}`
         weatherSummaryImg.src = `assets/weather/${getWeatherIcon(id)}`
 
@@ -259,7 +259,26 @@ function getWeatherTip(condition) {
 
 
 // DISPLAY SECTIONS
-function showDisplaySection(section) {
-    [weatherInfoSection, searchCitySection, notFoundSection].forEach(sec => sec.style.display = 'none')
-    section.style.display = 'flex'
+function showDisplaySection(sectionToShow) {
+    const sections = [weatherInfoSection, searchCitySection, notFoundSection];
+    sections.forEach(section => {
+        if (section === sectionToShow) {
+            section.style.display = 'flex';
+            const children = Array.from(section.children);
+            children.forEach((child, index) => {
+                child.style.opacity = '0';
+                child.style.transform = 'translateY(-20px)';
+                child.style.animation = `fadeSlideDown 0.5s ease forwards`;
+                child.style.animationDelay = `${index * 0.15}s`;
+            });
+        } else {
+            section.style.display = 'none';
+            Array.from(section.children).forEach(child => {
+                child.style.animation = '';
+                child.style.opacity = '';
+                child.style.transform = '';
+                child.style.animationDelay = '';
+            });
+        }
+    });
 }

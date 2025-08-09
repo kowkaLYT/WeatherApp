@@ -34,7 +34,7 @@ body::before {
 /* ----- MAIN CONTAINER ----- */
 .main-container {
   width: 400px;
-  height: 770px;
+  height: 775px;
   z-index: 1;
   background: linear-gradient(
     145deg,
@@ -274,6 +274,22 @@ body::before {
 .tip-container img {
   width: 32px;
   height: 32px;
+}
+
+/* ANIMATIONS */
+@keyframes fadeSlideDown {
+  0% {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-slide-child {
+  opacity: 0;
 }
 
 @keyframes fadeIn {
