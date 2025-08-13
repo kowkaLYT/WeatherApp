@@ -1,21 +1,32 @@
 # WeatherApp ⛅
 
-A simple, user-friendly weather application that allows you to search for the current weather and 5-day forecast of any city using the OpenWeatherMap API.
+A simple, user-friendly weather application that provides **real-time weather data** and **5-day forecasts** for any location using the OpenWeatherMap API.
 
 ---
 
-## Features
+## ✨ Key Features
 
-- Search weather by city name
-- Displays current weather conditions including temperature, humidity, wind speed, and weather description
-- Shows sunrise and sunset times adjusted to the city’s timezone
-- 5-day weather forecast with daily temperature and weather icons
+- 🔍 *City Search* – Find weather by entering **any city name worldwide**
+- 🌡️ *Current Conditions* – Real-time **temperature, humidity, wind speed** and weather status (e.g. *"Sunny"*, *"Rainy"*)
+- 🌅 *Sun Times* – Accurate **sunrise/sunset** times (auto-adjusted to local timezone)
+- 📅 *5-Day Forecast* – Daily predictions with **temperature ranges** and visual weather icons
+- ⚠️ *Error Handling* – Clear messages when location fails + **manual input option**
+- 📍 *Auto-Location* – **GPS detection** (with permission) or IP-based fallback
+- 💡 *Weather Tips* – Smart advice like *"Bring an umbrella"* or *"Wear sunscreen"*
 
 ---
 
-## Technologies Used
+## 🛠 Technologies Used
 
-- HTML5 & CSS3
-- JavaScript (ES6+)
-- [OpenWeatherMap API](https://openweathermap.org/api)
-- Google Material Symbols icons
+- **Frontend**: HTML5, CSS3, JavaScript (ES6+)
+- **API**: [OpenWeatherMap API](https://openweathermap.org/api)
+- **Icons**: Google Material Symbols
+- **Hosting**: GitHub Pages / Netlify
+
+---
+
+## 🚀 Getting Started
+
+1. Clone the repo:
+   ```bash
+   git clone https://github.com/your-username/weatherapp.git
