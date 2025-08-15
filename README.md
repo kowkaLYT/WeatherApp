@@ -7,12 +7,19 @@ A simple, user-friendly weather application that provides **real-time weather da
 ## ✨ Key Features
 
 - 🔍 *City Search* – Find weather by entering **any city name worldwide**
-- 🌡️ *Current Conditions* – Real-time **temperature, humidity, wind speed** and weather status (e.g. *"Sunny"*, *"Rainy"*)
+- 🕑 *Recent Cities* – Saves your last searched locations for quick access
+- 🌡️ *Current Conditions* – Real-time **temperature, humidity, visibility, wind speed** and weather status (e.g. *"Sunny"*, *"Rainy"*)
 - 🌅 *Sun Times* – Accurate **sunrise/sunset** times (auto-adjusted to local timezone)
 - 📅 *5-Day Forecast* – Daily predictions with **temperature ranges** and visual weather icons
 - ⚠️ *Error Handling* – Clear messages when location fails + **manual input option**
 - 📍 *Auto-Location* – **GPS detection** (with permission) or IP-based fallback
 - 💡 *Weather Tips* – Smart advice like *"Bring an umbrella"* or *"Wear sunscreen"*
+
+---
+
+# Preview 🖼
+
+<img width="771" height="866" alt="image" src="https://github.com/user-attachments/assets/642d18ca-967d-4b4d-8bd8-f80ddf3be382" />
 
 ---
 
@@ -22,11 +29,3 @@ A simple, user-friendly weather application that provides **real-time weather da
 - **API**: [OpenWeatherMap API](https://openweathermap.org/api)
 - **Icons**: Google Material Symbols
 - **Hosting**: GitHub Pages / Netlify
-
----
-
-## 🚀 Getting Started
-
-1. Clone the repo:
-   ```bash
-   git clone https://github.com/your-username/weatherapp.git
