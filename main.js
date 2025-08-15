@@ -1,3 +1,26 @@
+// RECENT CITIES
+let recentCities = JSON.parse(localStorage.getItem('recentCities')) || [];
+
+function addToRecent(city) {
+    if (!recentCities.includes(city)) {
+        recentCities.unshift(city);
+        if (recentCities.length > 5) recentCities.pop();
+        localStorage.setItem('recentCities', JSON.stringify(recentCities));
+        renderRecentCities();
+    }
+}
+
+function renderRecentCities() {
+    const container = document.querySelector('.recent-cities');
+    container.innerHTML = '';
+    recentCities.forEach(city => {
+        const btn = document.createElement('button');
+        btn.textContent = city;
+        btn.onclick = () => updateWeatherInfo(city);
+        container.appendChild(btn);
+    });
+}
+
 // DOM ELEMENTS
 const elements = {
     cityInput: document.querySelector('.city-input'),
@@ -12,6 +35,7 @@ const elements = {
     feelsLikeTxt: document.querySelector('.feels-like-txt'),
     conditionTxt: document.querySelector('.condition-txt'),
     humidityValueTxt: document.querySelector('.humidity-value-txt'),
+    visibilityValueTxt: document.querySelector('.visibility-value-txt'),
     windValueTxt: document.querySelector('.wind-value-txt'),
     weatherSummaryImg: document.querySelector('.weather-summary-img'),
     currentLocalTime: document.querySelector('.current-date-txt'),
@@ -82,7 +106,6 @@ function createToastContainer() {
 // SHOW TOAST
 function showToast(message, type = 'info') {
     const container = createToastContainer()
-
     const toast = document.createElement('div')
     toast.textContent = message
     Object.assign(toast.style, {
@@ -144,7 +167,6 @@ async function getFetchDataByCoords(endPoint, lat, lon) {
     return data;
 }
 
-
 // WEATHER ICON
 function getWeatherIcon(id) {
     if (id <= 232) return 'thunderstorm.svg'
@@ -198,6 +220,7 @@ function renderWeatherData(weatherData) {
         main: { temp, humidity, feels_like },
         weather: [{ id, main }],
         wind: { speed },
+        visibility,
         sys: { sunrise, sunset },
         timezone
     } = weatherData;
@@ -208,6 +231,12 @@ function renderWeatherData(weatherData) {
     elements.conditionTxt.textContent = main;
     elements.humidityValueTxt.textContent = humidity + '%';
     elements.windValueTxt.textContent = speed + ' M/s';
+
+    if (visibility >= 1000) {
+        elements.visibilityValueTxt.textContent = (visibility / 1000).toFixed(1) + ' km';
+    } else {
+        elements.visibilityValueTxt.textContent = visibility + ' m';
+    }
 
     elements.sunriseTxt.textContent = `Sunrise: ${getTimeSun(sunrise, timezone)}`;
     elements.sunsetTxt.textContent = `Sunset: ${getTimeSun(sunset, timezone)}`;
@@ -226,6 +255,9 @@ async function updateWeatherInfo(city) {
         const weatherData = await getFetchData('weather', city);
         renderWeatherData(weatherData);
         await updateForecastsInfo(city);
+
+        addToRecent(city)
+
         showDisplaySection(elements.weatherInfoSection);
     } catch (error) {
         handleError(error);
@@ -264,8 +296,7 @@ async function updateForecastsInfo(city) {
     try {
         const forecastsData = await getFetchData('forecast', city);
         renderForecasts(forecastsData);
-    } catch {
-    }
+    } catch { }
 }
 
 // UPDATE FORECAST BY COORDINATES
@@ -273,8 +304,7 @@ async function updateForecastsInfoByCoords(lat, lon) {
     try {
         const forecastsData = await getFetchDataByCoords('forecast', lat, lon);
         renderForecasts(forecastsData);
-    } catch {
-    }
+    } catch { }
 }
 
 // RENDER FORECAST
@@ -311,7 +341,7 @@ function updateForecastItem(weatherData) {
     elements.forecastItemsContainer.insertAdjacentHTML('beforeend', forecastItem);
 }
 
-// SHOE DISPLAY SECTION
+// SHOW DISPLAY SECTION
 function showDisplaySection(sectionToShow) {
     const sections = [elements.weatherInfoSection, elements.searchCitySection, elements.notFoundSection];
     sections.forEach(section => {
@@ -359,5 +389,30 @@ styleSheet.innerText = `
         transform: translateY(0);
     }
 }
+.recent-cities {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 10px 0;
+}
+.recent-cities button {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  backdrop-filter: blur(4px);
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+.recent-cities button:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: scale(1.05);
+}
+.recent-cities button:active {
+  transform: scale(0.95);
+}
 `;
 document.head.appendChild(styleSheet);
+renderRecentCities();
